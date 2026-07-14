@@ -154,15 +154,30 @@ def proses_citra_dan_kirim_telegram(manual=False):
             plot_awan = data_awan.plot(ax=ax_map, cmap='turbo_r', levels=levels,
                                        transform=ccrs.PlateCarree(), add_colorbar=False)
 
-            ax_map.coastlines(resolution='10m', color='white', linewidth=1.2)
-            ax_map.set_extent([106.5, 114.5, -3.5, 3.5], crs=ccrs.PlateCarree())
+            ax_map.coastlines(resolution='10m', color='white', linewidth=1.2)            
+            # 1. Geser sedikit batas peta (nudge) agar kalkulasi koordinat Shapely aman
+            ax_map.set_extent([106.501, 114.499, -3.499, 3.499], crs=ccrs.PlateCarree())
 
             gdf_perairan.plot(ax=ax_map, facecolor='none', edgecolor='cyan',
                               linewidth=1.5, alpha=0.8, transform=ccrs.PlateCarree())
 
+            # Import library pembantu untuk mengunci posisi grid koordinat
+            import matplotlib.ticker as mticker
+
+            # 2. Set posisi grid secara manual agar tidak menabrak garis tepi peta
             gl = ax_map.gridlines(draw_labels=True, color='white', linestyle='--', alpha=0.3)
             gl.top_labels = False
             gl.right_labels = False
+            gl.xlocator = mticker.FixedLocator([107, 108, 109, 110, 111, 112, 113, 114])
+            gl.ylocator = mticker.FixedLocator([-3, -2, -1, 0, 1, 2, 3])
+            #ax_map.set_extent([106.5, 114.5, -3.5, 3.5], crs=ccrs.PlateCarree())
+
+            #gdf_perairan.plot(ax=ax_map, facecolor='none', edgecolor='cyan',
+                              #linewidth=1.5, alpha=0.8, transform=ccrs.PlateCarree())
+
+            #gl = ax_map.gridlines(draw_labels=True, color='white', linestyle='--', alpha=0.3)
+            #gl.top_labels = False
+            #gl.right_labels = False
 
             ax_map.plot(LON_PTK, LAT_PTK, 'ms', markersize=8, transform=ccrs.PlateCarree())
             for r, label in zip([0.45, 0.9], ['50km', '100km']):
