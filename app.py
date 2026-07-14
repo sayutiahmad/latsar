@@ -285,15 +285,16 @@ with col_kontrol:
     st.write("Gunakan tombol di bawah ini jika ingin menjalankan kodingan secara instan saat ini juga tanpa menunggu jadwal 10 menit:")
     
     if st.button("🚀 Jalankan Pengolahan Data & Kirim Sekarang"):
-        with st.spinner("Sedang memproses citra satelit dan mengirim notifikasi ke Telegram..."):
-            proses_citra_dan_kirim_telegram()
-        st.success("Eksekusi manual sukses dilakukan!")
-        #st.rerun() # Refresh halaman untuk memperbarui status waktu terakhir
-    except Exception as e:
-        # Tambahkan dua baris ini agar error tidak bisa sembunyi
-        import traceback
-        st.error(f"🚨 PROSES GAGAL: {e}")
-        st.code(traceback.format_exc()) # Menampilkan jejak error lengkap di web
+        try: # <--- KITA TAMBAHKAN 'TRY:' DI SINI
+            with st.spinner("Sedang memproses citra satelit dan mengirim notifikasi ke Telegram..."):
+                proses_citra_dan_kirim_telegram()
+            st.success("Eksekusi manual sukses dilakukan!")
+            #st.rerun() 
+        except Exception as e:
+            # Tambahkan dua baris ini agar error tidak bisa sembunyi
+            import traceback
+            st.error(f"🚨 PROSES GAGAL: {e}")
+            st.code(traceback.format_exc())
 # --- TAMBAHKAN KODE INI DI SINI ---
 st.subheader("🗺️ Peta Hasil Analisis Citra Satelit Terbaru")
 if os.path.exists("latest_map.png"):
