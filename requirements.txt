@@ -2,6 +2,7 @@ streamlit
 apscheduler
 python-dotenv
 xarray
+--no-binary cartopy
 cartopy
 geopandas
 netCDF4
