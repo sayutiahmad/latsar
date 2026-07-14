@@ -22,7 +22,7 @@ def proses_citra_dan_kirim_telegram():
         # 🛠️ MASUKKAN KODINGAN PENGOLAHAN CITRA SATELIT ANDA DI SINI
         # ========================================================
         # --- 0. INSTALL LIBRARIES (Jalankan ini di sel Colab) ---
-!pip install xarray cartopy geopandas netCDF4 regionmask
+#!pip install xarray cartopy geopandas netCDF4 regionmask
 
 import ftplib
 import tempfile
