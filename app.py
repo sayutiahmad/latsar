@@ -224,7 +224,7 @@ def proses_citra_dan_kirim_telegram():
             plt.close(fig) # Bersihkan memori RAM server dari matplotlib
 
         except Exception as e:
-            print(f"Terjadi kesalahan: {e}")
+            st.error(f"🚨 Gagal memproses data BMKG: {e}")
 
         finally:
             if temp_path and os.path.exists(temp_path):
@@ -289,7 +289,7 @@ with col_kontrol:
             with st.spinner("Sedang memproses citra satelit dan mengirim notifikasi ke Telegram..."):
                 proses_citra_dan_kirim_telegram()
             st.success("Eksekusi manual sukses dilakukan!")
-            #st.rerun() 
+            st.rerun() 
         except Exception as e:
             # Tambahkan dua baris ini agar error tidak bisa sembunyi
             import traceback
