@@ -1,3 +1,8 @@
 streamlit
 apscheduler
 python-dotenv
+xarray
+cartopy
+geopandas
+netCDF4
+regionmask
