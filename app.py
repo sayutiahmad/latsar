@@ -65,9 +65,7 @@ def proses_citra_dan_kirim_telegram(manual=False):
         LAT_PTK, LON_PTK = 0.0, 109.33
 
         # --- 3. FUNGSI LOGIKA WAKTU ---
-        # --- 3. FUNGSI LOGIKA WAKTU ---
         def get_latest_time():
-          # Menggunakan dt_global yang dijamin aman dari bentrok variabel lokal
           now_utc = dt_global.datetime.now(dt_global.timezone.utc) 
           check_time = now_utc - timedelta(minutes=7)
           rounded_minute = (check_time.minute // 10) * 10
@@ -114,27 +112,22 @@ def proses_citra_dan_kirim_telegram(manual=False):
             data_c = ds[v_name] - 273.15
             data_awan = data_c.where(data_c <= 21)
 
-            hasil_analisis = [] # List untuk menyimpan hasil tiap wilayah
+            hasil_analisis = [] 
 
             print("Menganalisis 6 Wilayah Perairan...")
             for index, row in gdf_perairan.iterrows():
                 nama_perairan = row['perairan']
 
-                # Ambil 1 poligon spesifik
                 single_poly_gdf = gdf_perairan.iloc[[index]]
 
-                # Buat masking khusus poligon ini
                 mask = regionmask.mask_geopandas(single_poly_gdf, data_c.longitude, data_c.latitude)
                 data_masked = data_c.where(mask.notnull())
 
-                # Hitung Suhu Minimum
                 min_temp = float(data_masked.min())
 
-                # Hitung Luasan Awan (Suhu < -62 C)
                 pixel_count = int((data_masked < -62).sum())
-                luasan_km2 = pixel_count * 4 # 1 piksel ~ 4 km2
+                luasan_km2 = pixel_count * 4 
 
-                # Tentukan Status
                 if min_temp < -80:
                     status = "AWAS"
                 elif min_temp < -62 and luasan_km2 > 20:
@@ -142,9 +135,8 @@ def proses_citra_dan_kirim_telegram(manual=False):
                 else:
                     status = "NORMAL"
 
-                # Simpan hasil
                 hasil_analisis.append({
-                    'nama': nama_perairan.replace("Perairan ", ""), # Singkat nama agar muat di plot
+                    'nama': nama_perairan.replace("Perairan ", ""), 
                     'min_temp': min_temp,
                     'luas': luasan_km2,
                     'status': status
@@ -153,9 +145,8 @@ def proses_citra_dan_kirim_telegram(manual=False):
 
             # --- 6. VISUALISASI DASHBOARD ---
             fig = plt.figure(figsize=(16, 10), facecolor='white')
-            gs = gridspec.GridSpec(2, 3, height_ratios=[3, 1], width_ratios=[1.2, 1, 1.2]) # Lebarkan panel teks sedikit
+            gs = gridspec.GridSpec(2, 3, height_ratios=[3, 1], width_ratios=[1.2, 1, 1.2]) 
 
-            # A. PETA UTAMA
             ax_map = fig.add_subplot(gs[:, 0:2], projection=ccrs.PlateCarree())
             ax_map.set_facecolor('black')
 
@@ -166,7 +157,6 @@ def proses_citra_dan_kirim_telegram(manual=False):
             ax_map.coastlines(resolution='10m', color='white', linewidth=1.2)
             ax_map.set_extent([106.5, 114.5, -3.5, 3.5], crs=ccrs.PlateCarree())
 
-            # Plot GeoJSON (Garis Cyan)
             gdf_perairan.plot(ax=ax_map, facecolor='none', edgecolor='cyan',
                               linewidth=1.5, alpha=0.8, transform=ccrs.PlateCarree())
 
@@ -185,19 +175,15 @@ def proses_citra_dan_kirim_telegram(manual=False):
             ax_map.set_title(f"HIMAWARI-9 ENHANCED INFRARED (EH)\n{STASIUN_NAMA} | {waktu_wib.strftime('%d %b %Y | %H:%M')} WIB",
                              fontweight='bold', fontsize=14, loc='left', pad=15)
 
-            # B. PANEL TEKS ANALISIS (Menampilkan 6 Wilayah)
             ax_text = fig.add_subplot(gs[0, 2])
             ax_text.axis('off')
             ax_text.add_patch(plt.Rectangle((0, 0), 1, 1, fill=False, edgecolor='black', lw=1.5, transform=ax_text.transAxes))
 
-            # Susun teks laporan dari hasil looping
             teks_laporan = f"REGIONAL ANALYSIS REPORT\n{'='*24}\n\n"
             for res in hasil_analisis:
-                # Beri tanda peringatan jika status bukan NORMAL
                 alert_icon = "⚠️ " if res['status'] != "NORMAL" else ""
                 teks_laporan += f"{alert_icon}[{res['nama']}]\n"
 
-                # Handle kasus jika tidak ada awan sama sekali (min_temp = nan)
                 if math.isnan(res['min_temp']):
                     teks_laporan += f" Status: CLEAR\n\n"
                 else:
@@ -205,13 +191,11 @@ def proses_citra_dan_kirim_telegram(manual=False):
                     teks_laporan += f" Area  : {res['luas']} km² (<-62°C)\n"
                     teks_laporan += f" Status: {res['status']}\n\n"
 
-            # --- TAMBAHAN SUMBER DATA ---
             teks_laporan += f"{'='*24}\n"
             teks_laporan += f"Source: BMKG FTP (Himawari-9)\n"
 
             ax_text.text(0.05, 0.95, teks_laporan, transform=ax_text.transAxes, fontsize=10, verticalalignment='top', family='monospace')
 
-            # C. PANEL COLORBAR
             ax_cbar = fig.add_subplot(gs[1, 2])
             ax_cbar.axis('off')
             cbar_ax = inset_axes(ax_cbar, width="90%", height="20%", loc='center')
@@ -219,19 +203,18 @@ def proses_citra_dan_kirim_telegram(manual=False):
             cb.set_label('Cloud Top Temperature (°C)', fontweight='bold')
 
             plt.tight_layout()
-            # Simpan gambar peta ke dalam file lokal
             fig.savefig("latest_map.png", dpi=150, bbox_inches='tight')
-            plt.close(fig) # Bersihkan memori RAM server dari matplotlib
+            plt.close(fig) 
 
         except Exception as e:
             st.error(f"🚨 Gagal memproses data BMKG: {e}")
+            if manual: raise e
 
         finally:
             if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path)
         # ========================================================
         
-        # Mencatat waktu eksekusi sukses ke file lokal (sebagai log sederhana)
         with open("last_run.txt", "w") as f:
             f.write(timestamp_sekarang)
             
@@ -239,12 +222,12 @@ def proses_citra_dan_kirim_telegram(manual=False):
     
     except Exception as e:
         print(f"[{timestamp_sekarang}] ERROR: Gagal memproses citra. Detail: {str(e)}")
+        if manual: raise e
 
 # 3. INISIALISASI SCHEDULER YANG AMAN UNTUK STREAMLIT
 if 'scheduler_berjalan' not in st.session_state:
     try:
         scheduler = BackgroundScheduler()
-        # Menjadwalkan fungsi berjalan otomatis setiap 10 menit
         scheduler.add_job(proses_citra_dan_kirim_telegram, 'interval', minutes=10, id='job_satelit_10min')
         scheduler.start()
         st.session_state['scheduler_berjalan'] = True
@@ -252,26 +235,20 @@ if 'scheduler_berjalan' not in st.session_state:
     except Exception as e:
         st.warning(f"Gagal mengaktifkan scheduler otomatis: {e}")
 
-# Jalankan scheduler latar belakang secara otomatis saat aplikasi web menyala
-#sched = jalankan_otomatisasi()
-
 # 4. ANTARMUKA WEBSITE (STREAMLIT DASHBOARD)
 st.title("🛰️ Satellite Early Warning System Dashboard")
 st.markdown("Aplikasi berbasis website untuk otomasi pengolahan citra satelit berbasis spasial dan peringatan bencana.")
 
-# Membaca log waktu eksekusi terakhir dari file
 if os.path.exists("last_run.txt"):
     with open("last_run.txt", "r") as f:
         waktu_terakhir = f.read()
 else:
     waktu_terakhir = "Belum pernah dieksekusi semenjak server aktif"
 
-# Layout Kolom Dashboard
 col_status, col_kontrol = st.columns(2)
 
 with col_status:
     st.subheader("Informasi Log & Jadwal")
-    # Memeriksa status scheduler melalui session_state
     if st.session_state.get('scheduler_berjalan', False):
         st.success("🔄 Sistem Otomatisasi: AKTIF (Berjalan di Latar Belakang)")
     else:
@@ -285,23 +262,21 @@ with col_kontrol:
     st.write("Gunakan tombol di bawah ini jika ingin menjalankan kodingan secara instan saat ini juga tanpa menunggu jadwal 10 menit:")
     
     if st.button("🚀 Jalankan Pengolahan Data & Kirim Sekarang"):
-        try: # <--- KITA TAMBAHKAN 'TRY:' DI SINI
+        try:
             with st.spinner("Sedang memproses citra satelit dan mengirim notifikasi ke Telegram..."):
-                proses_citra_dan_kirim_telegram()
-            st.success("Eksekusi manual sukses dilakukan!")
-            st.rerun() 
+                proses_citra_dan_kirim_telegram(manual=True)
+            st.success("Eksekusi manual sukses dilakukan! Silakan periksa peta di bawah.")
+            # st.rerun() # Dinonaktifkan sementara agar error terlihat menetap di layar
         except Exception as e:
-            # Tambahkan dua baris ini agar error tidak bisa sembunyi
             import traceback
             st.error(f"🚨 PROSES GAGAL: {e}")
             st.code(traceback.format_exc())
-# --- TAMBAHKAN KODE INI DI SINI ---
+
 st.subheader("🗺️ Peta Hasil Analisis Citra Satelit Terbaru")
 if os.path.exists("latest_map.png"):
     st.image("latest_map.png", caption="Visualisasi Satelit Himawari-9 Enhanced Infrared (EH)", use_container_width=True)
 else:
     st.info("ℹ️ Belum ada gambar peta yang digenerate. Silakan klik tombol 'Jalankan Pengolahan Data & Kirim Sekarang' di atas untuk memicu pembuatan peta pertama kali.")
-# ----------------------------------
+
 st.divider()
 st.caption("Catatan Keamanan: Token bot Telegram dan Chat ID Anda telah diamankan menggunakan file `.env`.")
-
