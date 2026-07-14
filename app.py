@@ -289,7 +289,7 @@ with col_kontrol:
             proses_citra_dan_kirim_telegram()
         st.success("Eksekusi manual sukses dilakukan!")
         #st.rerun() # Refresh halaman untuk memperbarui status waktu terakhir
-        except Exception as e:
+    except Exception as e:
         # Tambahkan dua baris ini agar error tidak bisa sembunyi
         import traceback
         st.error(f"🚨 PROSES GAGAL: {e}")
