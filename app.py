@@ -15,7 +15,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 st.set_page_config(page_title="Satellite Early Warning System", layout="wide")
 
 # 2. FUNGSI UTAMA (Tempatkan Kodingan Citra Satelit Anda di Sini)
-def proses_citra_dan_kirim_telegram():
+def proses_citra_dan_kirim_telegram(manual=False):
     timestamp_sekarang = dt_global.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     try:
