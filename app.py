@@ -2,7 +2,8 @@ import streamlit as st
 import os
 import datetime
 from dotenv import load_dotenv
-from api_telegram_anda import kirim_ke_telegram # <-- Contoh modul kirim telegram Anda
+import requests
+#from api_telegram_anda import kirim_ke_telegram # <-- Contoh modul kirim telegram Anda
 from apscheduler.schedulers.background import BackgroundScheduler
 
 # 1. Memuat variabel lingkungan dari file .env
