@@ -217,7 +217,9 @@ def proses_citra_dan_kirim_telegram():
             cb.set_label('Cloud Top Temperature (°C)', fontweight='bold')
 
             plt.tight_layout()
-            st.pyplot(fig) # <-- Ini agar gambarnya muncul di halaman web Streamlit Anda
+            # Simpan gambar peta ke dalam file lokal
+            fig.savefig("latest_map.png", dpi=150, bbox_inches='tight')
+            plt.close(fig) # Bersihkan memori RAM server dari matplotlib
 
         except Exception as e:
             print(f"Terjadi kesalahan: {e}")
@@ -281,6 +283,13 @@ with col_kontrol:
             proses_citra_dan_kirim_telegram()
         st.success("Eksekusi manual sukses dilakukan!")
         st.rerun() # Refresh halaman untuk memperbarui status waktu terakhir
-
+# --- TAMBAHKAN KODE INI DI SINI ---
+st.subheader("🗺️ Peta Hasil Analisis Citra Satelit Terbaru")
+if os.path.exists("latest_map.png"):
+    st.image("latest_map.png", caption="Visualisasi Satelit Himawari-9 Enhanced Infrared (EH)", use_container_width=True)
+else:
+    st.info("ℹ️ Belum ada gambar peta yang digenerate. Silakan klik tombol 'Jalankan Pengolahan Data & Kirim Sekarang' di atas untuk memicu pembuatan peta pertama kali.")
+# ----------------------------------
 st.divider()
 st.caption("Catatan Keamanan: Token bot Telegram dan Chat ID Anda telah diamankan menggunakan file `.env`.")
+
