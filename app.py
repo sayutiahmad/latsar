@@ -288,7 +288,12 @@ with col_kontrol:
         with st.spinner("Sedang memproses citra satelit dan mengirim notifikasi ke Telegram..."):
             proses_citra_dan_kirim_telegram()
         st.success("Eksekusi manual sukses dilakukan!")
-        st.rerun() # Refresh halaman untuk memperbarui status waktu terakhir
+        #st.rerun() # Refresh halaman untuk memperbarui status waktu terakhir
+        except Exception as e:
+        # Tambahkan dua baris ini agar error tidak bisa sembunyi
+        import traceback
+        st.error(f"🚨 PROSES GAGAL: {e}")
+        st.code(traceback.format_exc()) # Menampilkan jejak error lengkap di web
 # --- TAMBAHKAN KODE INI DI SINI ---
 st.subheader("🗺️ Peta Hasil Analisis Citra Satelit Terbaru")
 if os.path.exists("latest_map.png"):
