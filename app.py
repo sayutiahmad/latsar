@@ -240,14 +240,17 @@ def proses_citra_dan_kirim_telegram():
     except Exception as e:
         print(f"[{timestamp_sekarang}] ERROR: Gagal memproses citra. Detail: {str(e)}")
 
-# 3. INISIALISASI SCHEDULER (Menggunakan Streamlit Cache agar tidak duplikat job)
-@st.cache_resource
-def jalankan_otomatisasi():
-    scheduler = BackgroundScheduler()
-    # Menjadwalkan fungsi berjalan otomatis setiap 10 menit
-    scheduler.add_job(proses_citra_dan_kirim_telegram, 'interval', minutes=10, id='job_satelit_10min')
-    scheduler.start()
-    return scheduler
+# 3. INISIALISASI SCHEDULER YANG AMAN UNTUK STREAMLIT
+if 'scheduler_berjalan' not in st.session_state:
+    try:
+        scheduler = BackgroundScheduler()
+        # Menjadwalkan fungsi berjalan otomatis setiap 10 menit
+        scheduler.add_job(proses_citra_dan_kirim_telegram, 'interval', minutes=10, id='job_satelit_10min')
+        scheduler.start()
+        st.session_state['scheduler_berjalan'] = True
+        st.session_state['sched_obj'] = scheduler
+    except Exception as e:
+        st.warning(f"Gagal mengaktifkan scheduler otomatis: {e}")
 
 # Jalankan scheduler latar belakang secara otomatis saat aplikasi web menyala
 sched = jalankan_otomatisasi()
@@ -268,7 +271,8 @@ col_status, col_kontrol = st.columns(2)
 
 with col_status:
     st.subheader("Informasi Log & Jadwal")
-    if sched.running:
+    # Memeriksa status scheduler melalui session_state
+    if st.session_state.get('scheduler_berjalan', False):
         st.success("🔄 Sistem Otomatisasi: AKTIF (Berjalan di Latar Belakang)")
     else:
         st.error("🛑 Sistem Otomatisasi: BERHENTI")
