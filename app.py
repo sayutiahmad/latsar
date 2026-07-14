@@ -37,7 +37,7 @@ def proses_citra_dan_kirim_telegram():
         import geopandas as gpd
         import regionmask
         from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-        from datetime import datetime, timedelta, timezone
+        from datetime import timedelta, timezone
 
         # --- 1. DATA GEOJSON PERAIRAN KALBAR (Ditanam langsung agar mudah di Colab) ---
         geojson_data = {
@@ -66,7 +66,7 @@ def proses_citra_dan_kirim_telegram():
 
         # --- 3. FUNGSI LOGIKA WAKTU ---
         def get_latest_time():
-            now_utc = datetime.now(timezone.utc)
+            now_utc = datetime.datetime.now(timezone.utc)
             check_time = now_utc - timedelta(minutes=7)
             rounded_minute = (check_time.minute // 10) * 10
             return check_time.replace(minute=rounded_minute, second=0, microsecond=0)
@@ -217,7 +217,7 @@ def proses_citra_dan_kirim_telegram():
             cb.set_label('Cloud Top Temperature (°C)', fontweight='bold')
 
             plt.tight_layout()
-            plt.show()
+            st.pyplot(fig) # <-- Ini agar gambarnya muncul di halaman web Streamlit Anda
 
         except Exception as e:
             print(f"Terjadi kesalahan: {e}")
