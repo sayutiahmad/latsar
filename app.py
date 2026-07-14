@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-import datetime
+import datetime as dt_global
 from dotenv import load_dotenv
 import requests
 #from api_telegram_anda import kirim_ke_telegram # <-- Contoh modul kirim telegram Anda
@@ -16,7 +16,7 @@ st.set_page_config(page_title="Satellite Early Warning System", layout="wide")
 
 # 2. FUNGSI UTAMA (Tempatkan Kodingan Citra Satelit Anda di Sini)
 def proses_citra_dan_kirim_telegram():
-    timestamp_sekarang = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp_sekarang = dt_global.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     try:
         # ========================================================
@@ -65,12 +65,14 @@ def proses_citra_dan_kirim_telegram():
         LAT_PTK, LON_PTK = 0.0, 109.33
 
         # --- 3. FUNGSI LOGIKA WAKTU ---
+        # --- 3. FUNGSI LOGIKA WAKTU ---
         def get_latest_time():
-            now_utc = datetime.datetime.now(timezone.utc)
-            check_time = now_utc - timedelta(minutes=7)
-            rounded_minute = (check_time.minute // 10) * 10
-            return check_time.replace(minute=rounded_minute, second=0, microsecond=0)
-
+          # Menggunakan dt_global yang dijamin aman dari bentrok variabel lokal
+          now_utc = dt_global.datetime.now(dt_global.timezone.utc) 
+          check_time = now_utc - timedelta(minutes=7)
+          rounded_minute = (check_time.minute // 10) * 10
+          return check_time.replace(minute=rounded_minute, second=0, microsecond=0)
+       
         def get_ftp_paths(dt):
             yyyy, mm, dd = dt.strftime('%Y'), dt.strftime('%m'), dt.strftime('%d')
             hhmm = dt.strftime('%H%M')
