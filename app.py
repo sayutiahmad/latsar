@@ -253,7 +253,7 @@ if 'scheduler_berjalan' not in st.session_state:
         st.warning(f"Gagal mengaktifkan scheduler otomatis: {e}")
 
 # Jalankan scheduler latar belakang secara otomatis saat aplikasi web menyala
-sched = jalankan_otomatisasi()
+#sched = jalankan_otomatisasi()
 
 # 4. ANTARMUKA WEBSITE (STREAMLIT DASHBOARD)
 st.title("🛰️ Satellite Early Warning System Dashboard")
