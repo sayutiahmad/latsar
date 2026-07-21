@@ -77,7 +77,6 @@ def proses_citra_dan_kirim_telegram(manual=False):
         target_dir, file_name = get_ftp_paths(target_time)
 
         print(f"Menghubungkan ke FTP {FTP_HOST}...")
-        # Penambahan Timeout 30 Detik agar tidak hanging saat koneksi lemot
         ftp = ftplib.FTP(FTP_HOST, timeout=30)
         ftp.login(FTP_USER, FTP_PASS)
 
@@ -195,12 +194,12 @@ def proses_citra_dan_kirim_telegram(manual=False):
         cb = plt.colorbar(plot_awan, cax=cbar_ax, orientation='horizontal')
         cb.set_label('Cloud Top Temperature (°C)', fontweight='bold')
 
-        # --- PERBAIKAN PENTING MEMORI & MARGIN ---
-        # Mengganti plt.tight_layout() agar aman untuk inset_axes
+        # --- OPERASI MANAJEMEN MEMORI DAN LAYOUT ---
         fig.subplots_adjust(left=0.05, right=0.95, top=0.92, bottom=0.08)
-        fig.savefig("latest_map.png", dpi=150, bbox_inches='tight')
         
-        # Membersihkan memori RAM secara eksplisit (Menjaga kesehatan server Streamlit)
+        # PERBAIKAN: Parameter bbox_inches='tight' dihapus agar peta tidak terpotong
+        fig.savefig("latest_map.png", dpi=150)
+        
         plt.close('all')
         ds.close()
         del ds, data_c, data_awan, fig
@@ -271,7 +270,7 @@ with col_kontrol:
 
 st.subheader("🗺️ Peta Hasil Analisis Citra Satelit Terbaru")
 if os.path.exists("latest_map.png"):
-    st.image("latest_map.png", caption="Visualisasi Satelit Himawari-9 Enhanced Infrared (EH)", use_container_width=True)
+    st.image("latest_map.png", caption="Visualisasi Satelit Himawari-9 Enhanced Infrared (EH)", width="stretch")
 else:
     st.info("ℹ️ Belum ada gambar peta yang digenerate. Silakan klik tombol 'Jalankan Pengolahan Data & Kirim Sekarang' di atas untuk memicu pembuatan peta pertama kali.")
 
